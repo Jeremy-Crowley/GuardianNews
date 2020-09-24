@@ -23,8 +23,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String GUARDIAN_REQUEST_URL = "/https://content.guardianapis.com/search?api-key=255dafbf-d5d8-4420-8d76-fec56b5a3b37";
-    private static final String GUARDIAN_KEY = "/https://content.guardianapis.com/search?api-key=255dafbf-d5d8-4420-8d76-fec56b5a3b37";
+    public static final String GUARDIAN_REQUEST_URL = "/https://content.guardianapis.com/search?q=Careers&show-tags=contributor&api-key=255dafbf-d5d8-4420-8d76-fec56b5a3b37";
     private static final String GET = "GET";
     private Object NewsItem;
 
@@ -39,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUi(NewsItem NewsList) {
 
-        //ArrayList<NewsItem> News = new ArrayList<>();
-       // News.add(new NewsItem("Are Gorillas coming for our beans!?!?!?!? Find out now!", "TerfSupreme", "12/32/3088"));
+        ArrayList<NewsItem> News = new ArrayList<>();
+        News.add(new NewsItem("Are Gorillas coming for our beans!?!?!?!? Find out now!", "TerfSupreme", "12/32/3088"));
 
         NewsItemAdapter Adapter = new NewsItemAdapter(this, NewsList);
         ListView listView = findViewById(R.id.frontListView);
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 // TODO: 9/23/2020 handle IOException
             }
-            NewsItem News = extractFeatureFromJson(jsonRes);
+            NewsItem News = extractResultsFromJson(jsonRes);
             return News;
         }
 
@@ -125,13 +124,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        private NewsItem extractFeatureFromJson(String NewsJSON) {
+        private NewsItem extractResultsFromJson(String NewsJSON) {
             try {
                 JSONObject baseJsonResponse = new JSONObject(NewsJSON);
-                JSONArray featureArray = baseJsonResponse.getJSONArray("features");
+                JSONArray resultsArray = baseJsonResponse.getJSONArray("results");
 
-                if (featureArray.length() > 0) {
-                    JSONObject firstFeature = featureArray.getJSONObject(0);
+                if (resultsArray.length() > 0) {
+                    JSONObject firstFeature = resultsArray.getJSONObject(0);
                     JSONObject properties = firstFeature.getJSONObject("properties");
 
 
