@@ -36,8 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private void updateUi(NewsItem News) {
 
         ArrayList<NewsItem> NewsList = new ArrayList<>();
-        //NewsList.add(new NewsItem("Are Gorillas coming for our beans!?!?!?!? Find out now!", "TerfSupreme", "12/32/3088"));
-        NewsList.add(News);
+      //NewsList.add(new NewsItem("Are Gorillas coming for our beans!?!?!?!? Find out now!", "TerfSupreme", "12/32/3088"));
+       NewsList.add(News);
 
 
         NewsItemAdapter Adapter = new NewsItemAdapter(this, NewsList);
@@ -48,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private class NewsAsyncTask extends AsyncTask<URL, Void, NewsItem> {
-        private Object NewsItem;
+   private class NewsAsyncTask extends AsyncTask<URL, Void, NewsItem> {
+
 
         protected NewsItem doInBackground(URL... urls) {
             URL url = makeUrl(GUARDIAN_REQUEST_URL);
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(NewsItem News) {
-            if (NewsItem == null) {
+            if (News == null) {
                 return;
             }
 
@@ -143,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                     String Date = firstResult.getString("webPublicationDate");
 
                     NewsItem test = new NewsItem(Title, Author, Date);
+
 
 
                     return new NewsItem(Title, Author, Date);
