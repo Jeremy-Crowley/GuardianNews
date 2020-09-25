@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NewsItemAdapter extends ArrayAdapter {
-    public NewsItemAdapter(Context context, NewsItem NewsItem) {
+    public NewsItemAdapter(Context context, ArrayList<NewsItem> NewsItem) {
         super(context, 0, (List) NewsItem);
     }
 

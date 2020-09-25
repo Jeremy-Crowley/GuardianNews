@@ -1,17 +1,13 @@
 package com.example.android.guardiannewsfeeddemo;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
-
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,9 +19,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String GUARDIAN_REQUEST_URL = "/https://content.guardianapis.com/search?q=Careers&show-tags=contributor&api-key=255dafbf-d5d8-4420-8d76-fec56b5a3b37";
-    private static final String GET = "GET";
-    private Object NewsItem;
+    public static final String GUARDIAN_REQUEST_URL =
+            "https://content.guardianapis.com/search?q=Careers&show-tags=contributor&api-key=255dafbf-d5d8-4420-8d76-fec56b5a3b37";
+
+   
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,18 +33,24 @@ public class MainActivity extends AppCompatActivity {
         task.execute();
     }
 
-    private void updateUi(NewsItem NewsList) {
+    private void updateUi(NewsItem News) {
 
-        ArrayList<NewsItem> News = new ArrayList<>();
-        News.add(new NewsItem("Are Gorillas coming for our beans!?!?!?!? Find out now!", "TerfSupreme", "12/32/3088"));
+        ArrayList<NewsItem> NewsList = new ArrayList<>();
+        //NewsList.add(new NewsItem("Are Gorillas coming for our beans!?!?!?!? Find out now!", "TerfSupreme", "12/32/3088"));
+        NewsList.add(News);
+
 
         NewsItemAdapter Adapter = new NewsItemAdapter(this, NewsList);
         ListView listView = findViewById(R.id.frontListView);
         listView.setEmptyView(findViewById(R.id.emptyView));
         listView.setAdapter(Adapter);
+
+
     }
 
     private class NewsAsyncTask extends AsyncTask<URL, Void, NewsItem> {
+        private Object NewsItem;
+
         protected NewsItem doInBackground(URL... urls) {
             URL url = makeUrl(GUARDIAN_REQUEST_URL);
             String jsonRes = "";
@@ -127,16 +130,19 @@ public class MainActivity extends AppCompatActivity {
         private NewsItem extractResultsFromJson(String NewsJSON) {
             try {
                 JSONObject baseJsonResponse = new JSONObject(NewsJSON);
-                JSONArray resultsArray = baseJsonResponse.getJSONArray("results");
+                JSONObject response = baseJsonResponse.getJSONObject("response");
+                JSONArray resultsArray = response.getJSONArray("results");
 
                 if (resultsArray.length() > 0) {
-                    JSONObject firstFeature = resultsArray.getJSONObject(0);
-                    JSONObject properties = firstFeature.getJSONObject("properties");
+                    JSONObject firstResult = resultsArray.getJSONObject(0);
+                    //JSONObject properties = firstResult.getJSONObject("properties");
 
 
-                    String Title = properties.getString("webTitle");
-                    String Author = properties.getString("webTitle");
-                    String Date = properties.getString("webPublicationDate");
+                    String Title = firstResult.getString("webTitle");
+                    String Author = firstResult.getString("webTitle");
+                    String Date = firstResult.getString("webPublicationDate");
+
+                    NewsItem test = new NewsItem(Title, Author, Date);
 
 
                     return new NewsItem(Title, Author, Date);
