@@ -148,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     String Title = firstResult.getString("webTitle");
+                    String webAddress = firstResult.getString("webUrl");
 
                     String date = firstResult
                                     .getString("webPublicationDate")
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                         Date parsedDate = parser.parse(date);
                         String formattedDate = formatter.format(parsedDate);
 
-                        NewsItem News = new NewsItem(Title, Author, formattedDate);
+                        NewsItem News = new NewsItem(Title, Author, formattedDate, webAddress);
                         NewsList.add(News);
                     } catch (ParseException e) {
                         System.out.println(e);
