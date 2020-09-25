@@ -1,13 +1,16 @@
 package com.example.android.guardiannewsfeeddemo;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,13 +19,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     public static final String GUARDIAN_REQUEST_URL =
-            "https://content.guardianapis.com/search?q=Careers&show-tags=contributor&api-key=255dafbf-d5d8-4420-8d76-fec56b5a3b37";
+            "https://content.guardianapis.com/search?show-tags=contributor&api-key=255dafbf-d5d8-4420-8d76-fec56b5a3b37";
 
-   
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,25 +38,19 @@ public class MainActivity extends AppCompatActivity {
         task.execute();
     }
 
-    private void updateUi(NewsItem News) {
-
-        ArrayList<NewsItem> NewsList = new ArrayList<>();
-      //NewsList.add(new NewsItem("Are Gorillas coming for our beans!?!?!?!? Find out now!", "TerfSupreme", "12/32/3088"));
-       NewsList.add(News);
+    private void updateUi(ArrayList<NewsItem> News) {
 
 
-        NewsItemAdapter Adapter = new NewsItemAdapter(this, NewsList);
+        NewsItemAdapter Adapter = new NewsItemAdapter(this, News);
         ListView listView = findViewById(R.id.frontListView);
         listView.setEmptyView(findViewById(R.id.emptyView));
         listView.setAdapter(Adapter);
 
-
     }
 
-   private class NewsAsyncTask extends AsyncTask<URL, Void, NewsItem> {
+    private class NewsAsyncTask extends AsyncTask<URL, Void, ArrayList<NewsItem>> {
 
-
-        protected NewsItem doInBackground(URL... urls) {
+        protected ArrayList<NewsItem> doInBackground(URL... urls) {
             URL url = makeUrl(GUARDIAN_REQUEST_URL);
             String jsonRes = "";
             try {
@@ -59,12 +58,12 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 // TODO: 9/23/2020 handle IOException
             }
-            NewsItem News = extractResultsFromJson(jsonRes);
+           ArrayList<NewsItem> News = extractResultsFromJson(jsonRes);
             return News;
         }
 
         @Override
-        protected void onPostExecute(NewsItem News) {
+        protected void onPostExecute(ArrayList<NewsItem> News) {
             if (News == null) {
                 return;
             }
@@ -127,26 +126,47 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        private NewsItem extractResultsFromJson(String NewsJSON) {
+        private ArrayList<NewsItem> extractResultsFromJson(String NewsJSON) {
             try {
                 JSONObject baseJsonResponse = new JSONObject(NewsJSON);
+
                 JSONObject response = baseJsonResponse.getJSONObject("response");
                 JSONArray resultsArray = response.getJSONArray("results");
 
-                if (resultsArray.length() > 0) {
-                    JSONObject firstResult = resultsArray.getJSONObject(0);
-                    //JSONObject properties = firstResult.getJSONObject("properties");
+                ArrayList<NewsItem> NewsList = new ArrayList<>();
 
+                if (resultsArray.length() > 0) {
+                    for (int i = 0; i < resultsArray.length(); i++) {
+                    JSONObject firstResult = resultsArray.getJSONObject(i);
+
+                    JSONArray tagsArray = firstResult.getJSONArray("tags");
+
+                    String Author = getString(R.string.blankAuthor);
+                    if (tagsArray.length() > 0) {
+                        JSONObject firstTag = tagsArray.getJSONObject(0);
+                        Author = firstTag.getString("webTitle");
+                    }
 
                     String Title = firstResult.getString("webTitle");
-                    String Author = firstResult.getString("webTitle");
-                    String Date = firstResult.getString("webPublicationDate");
 
-                    NewsItem test = new NewsItem(Title, Author, Date);
+                    String date = firstResult
+                                    .getString("webPublicationDate")
+                                    .replace("T", " ")
+                                    .replace("Z", "");
+                    SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 
+                    try {
+                        Date parsedDate = parser.parse(date);
+                        String formattedDate = formatter.format(parsedDate);
 
-
-                    return new NewsItem(Title, Author, Date);
+                        NewsItem News = new NewsItem(Title, Author, formattedDate);
+                        NewsList.add(News);
+                    } catch (ParseException e) {
+                        System.out.println(e);
+                    }
+                    }
+                    return NewsList;
                 }
             } catch (JSONException e) {
                 Log.e("Error", "Problem parsing JSON data");

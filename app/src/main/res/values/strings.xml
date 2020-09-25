@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Guardian news feed Demo</string>
+    <string name="blankAuthor">Unknown Author</string>
 </resources>
