@@ -1,8 +1,12 @@
 package com.example.android.guardiannewsfeeddemo;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,10 +45,21 @@ public class MainActivity extends AppCompatActivity {
     private void updateUi(ArrayList<NewsItem> News) {
 
 
-        NewsItemAdapter Adapter = new NewsItemAdapter(this, News);
+        final NewsItemAdapter Adapter = new NewsItemAdapter(this, News);
         ListView listView = findViewById(R.id.frontListView);
         listView.setEmptyView(findViewById(R.id.emptyView));
         listView.setAdapter(Adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                NewsItem currentNewsItem = Adapter.getItem(position);
+                Uri newsUri = Uri.parse(currentNewsItem.getURL());
+                Intent websiteIntent = new Intent(Intent.ACTION_VIEW, newsUri);
+                startActivity(websiteIntent);
+            }
+        });
 
     }
 
