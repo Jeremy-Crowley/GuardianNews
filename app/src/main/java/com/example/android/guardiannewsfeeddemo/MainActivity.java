@@ -1,6 +1,8 @@
 package com.example.android.guardiannewsfeeddemo;
 
+import android.app.LoaderManager;
 import android.content.Intent;
+import android.content.Loader;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -8,8 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
+
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.loader.content.AsyncTaskLoader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,9 +33,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<NewsItem>> {
     public static final String GUARDIAN_REQUEST_URL =
             "https://content.guardianapis.com/search?show-tags=contributor&api-key=255dafbf-d5d8-4420-8d76-fec56b5a3b37";
+    private static final int LOADER_ID = 1;
+    private NewsItemAdapter mAdapter;
+    private TextView mEmptyStateTextView;
 
 
     @Override
@@ -38,28 +46,56 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        NewsAsyncTask task = new NewsAsyncTask();
-        task.execute();
+       LoaderManager loaderManager = getLoaderManager();
+       loaderManager.initLoader(LOADER_ID, null, this);
+
     }
 
-    private void updateUi(ArrayList<NewsItem> News) {
+    private void updateUi(ArrayList<NewsItem> newsItems) {
 
 
-        final NewsItemAdapter Adapter = new NewsItemAdapter(this, News);
+        NewsItemAdapter Adapter = new NewsItemAdapter(this, newsItems);
         ListView listView = findViewById(R.id.frontListView);
         listView.setEmptyView(findViewById(R.id.emptyView));
         listView.setAdapter(Adapter);
+        mEmptyStateTextView = (TextView) findViewById(R.id.emptyView);
+        listView.setEmptyView(mEmptyStateTextView);
+
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                NewsItem currentNewsItem = Adapter.getItem(position);
+                NewsItem currentNewsItem = mAdapter.getItem(position);
+                System.out.println(currentNewsItem);
                 Uri newsUri = Uri.parse(currentNewsItem.getURL());
                 Intent websiteIntent = new Intent(Intent.ACTION_VIEW, newsUri);
                 startActivity(websiteIntent);
             }
         });
+
+    }
+
+    @Override
+    public Loader<ArrayList<NewsItem>> onCreateLoader(int i, Bundle bundle) {
+        return new NewsLoader(this, GUARDIAN_REQUEST_URL);
+                return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<ArrayList<NewsItem>> loader, ArrayList<NewsItem> newsItems) {
+        mEmptyStateTextView.setText(R.string,noNews);
+        mAdapter.clear();
+            if (newsItems != null && !newsItems.isEmpty()) {
+            mAdapter.addAll(newsItems);
+                return;
+            }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<ArrayList<NewsItem>> loader) {
+        mAdapter.clear();
 
     }
 
@@ -75,15 +111,6 @@ public class MainActivity extends AppCompatActivity {
             }
            ArrayList<NewsItem> News = extractResultsFromJson(jsonRes);
             return News;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<NewsItem> News) {
-            if (News == null) {
-                return;
-            }
-
-            updateUi(News);
         }
 
         private URL makeUrl(String stringUrl) {
