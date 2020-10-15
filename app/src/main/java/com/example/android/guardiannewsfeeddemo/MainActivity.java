@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.loader.content.AsyncTaskLoader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +34,7 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<NewsItem>> {
     public static final String GUARDIAN_REQUEST_URL =
-            "https://content.guardianapis.com/search?show-tags=contributor&api-key=255dafbf-d5d8-4420-8d76-fec56b5a3b37";
+            "https://content.guardianapis.com/search?q=cyberpunk&limit=10&api-key=255dafbf-d5d8-4420-8d76-fec56b5a3b37";
     private static final int LOADER_ID = 1;
     private NewsItemAdapter mAdapter;
     private TextView mEmptyStateTextView;
@@ -66,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                NewsItem currentNewsItem = mAdapter.getItem(position);
+                NewsItem currentNewsItem = (NewsItem) mAdapter.getItem(i);
                 System.out.println(currentNewsItem);
                 Uri newsUri = Uri.parse(currentNewsItem.getURL());
                 Intent websiteIntent = new Intent(Intent.ACTION_VIEW, newsUri);
@@ -79,12 +78,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public Loader<ArrayList<NewsItem>> onCreateLoader(int i, Bundle bundle) {
         return new NewsLoader(this, GUARDIAN_REQUEST_URL);
-                return null;
     }
 
     @Override
     public void onLoadFinished(Loader<ArrayList<NewsItem>> loader, ArrayList<NewsItem> newsItems) {
-        mEmptyStateTextView.setText(R.string,noNews);
+        mEmptyStateTextView.setText(R.string.noNews);
         mAdapter.clear();
             if (newsItems != null && !newsItems.isEmpty()) {
             mAdapter.addAll(newsItems);
@@ -107,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             try {
                 jsonRes = buildHttpRequest(url);
             } catch (IOException e) {
-                // TODO: 9/23/2020 handle IOException
+                Log.e("Loader", "Do in background error");
+
             }
            ArrayList<NewsItem> News = extractResultsFromJson(jsonRes);
             return News;
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 inputStream = urlConnection.getInputStream();
                 jsonRes = readFromStream(inputStream);
             } catch (IOException e) {
-                // TODO: Handle the exception
+                Log.e("HTTP request","problem building http request", e);
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
