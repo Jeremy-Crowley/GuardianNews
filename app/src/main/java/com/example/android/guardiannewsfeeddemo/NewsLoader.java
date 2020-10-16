@@ -2,7 +2,7 @@ package com.example.android.guardiannewsfeeddemo;
 
 import android.content.Context;
 
-import androidx.loader.content.AsyncTaskLoader;
+import android.content.AsyncTaskLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class NewsLoader  extends AsyncTaskLoader<ArrayList<NewsItem>> {
         if (mUrl == null) {
             return null;
         }
-        List<NewsItem> newsItem = QueryUtils.getnewsItemData(mUrl);
+        List<NewsItem> newsItem = MainActivity.getnews(mUrl);
         return (ArrayList<NewsItem>) newsItem;
     }
 }

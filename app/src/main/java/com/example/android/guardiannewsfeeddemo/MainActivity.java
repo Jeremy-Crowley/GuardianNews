@@ -45,8 +45,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-       LoaderManager loaderManager = getLoaderManager();
-       loaderManager.initLoader(LOADER_ID, null, this);
+        LoaderManager loaderManager = getLoaderManager();
+        loaderManager.initLoader(LOADER_ID, null, this);
 
     }
 
@@ -84,10 +84,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(Loader<ArrayList<NewsItem>> loader, ArrayList<NewsItem> newsItems) {
         mEmptyStateTextView.setText(R.string.noNews);
         mAdapter.clear();
-            if (newsItems != null && !newsItems.isEmpty()) {
+        if (newsItems != null && !newsItems.isEmpty()) {
             mAdapter.addAll(newsItems);
-                return;
-            }
+            return;
+        }
 
     }
 
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 Log.e("Loader", "Do in background error");
 
             }
-           ArrayList<NewsItem> News = extractResultsFromJson(jsonRes);
+            ArrayList<NewsItem> News = extractResultsFromJson(jsonRes);
             return News;
         }
 
@@ -178,35 +178,35 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                 if (resultsArray.length() > 0) {
                     for (int i = 0; i < resultsArray.length(); i++) {
-                    JSONObject firstResult = resultsArray.getJSONObject(i);
+                        JSONObject firstResult = resultsArray.getJSONObject(i);
 
-                    JSONArray tagsArray = firstResult.getJSONArray("tags");
+                        JSONArray tagsArray = firstResult.getJSONArray("tags");
 
-                    String Author = getString(R.string.blankAuthor);
-                    if (tagsArray.length() > 0) {
-                        JSONObject firstTag = tagsArray.getJSONObject(0);
-                        Author = firstTag.getString("webTitle");
-                    }
+                        String Author = getString(R.string.blankAuthor);
+                        if (tagsArray.length() > 0) {
+                            JSONObject firstTag = tagsArray.getJSONObject(0);
+                            Author = firstTag.getString("webTitle");
+                        }
 
-                    String Title = firstResult.getString("webTitle");
-                    String webAddress = firstResult.getString("webUrl");
+                        String Title = firstResult.getString("webTitle");
+                        String webAddress = firstResult.getString("webUrl");
 
-                    String date = firstResult
-                                    .getString("webPublicationDate")
-                                    .replace("T", " ")
-                                    .replace("Z", "");
-                    SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+                        String date = firstResult
+                                .getString("webPublicationDate")
+                                .replace("T", " ")
+                                .replace("Z", "");
+                        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 
-                    try {
-                        Date parsedDate = parser.parse(date);
-                        String formattedDate = formatter.format(parsedDate);
+                        try {
+                            Date parsedDate = parser.parse(date);
+                            String formattedDate = formatter.format(parsedDate);
 
-                        NewsItem News = new NewsItem(Title, Author, formattedDate, webAddress);
-                        NewsList.add(News);
-                    } catch (ParseException e) {
-                        System.out.println(e);
-                    }
+                            NewsItem News = new NewsItem(Title, Author, formattedDate, webAddress);
+                            NewsList.add(News);
+                        } catch (ParseException e) {
+                            System.out.println(e);
+                        }
                     }
                     return NewsList;
                 }
